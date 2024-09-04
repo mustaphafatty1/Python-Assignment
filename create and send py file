@@ -1,0 +1,46 @@
+#Assignment
+
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email.utils import formatdate
+from email import encoders
+
+def create_file(filename, content):
+    with open(filename, 'w') as f:
+        f.write(content)
+
+def send_email(subject, sender, recipient, filename):
+    msg = MIMEMultipart()
+    msg['From'] = sender
+    msg['To'] = recipient
+    msg['Date'] = formatdate(localtime=True)
+    msg['Subject'] = subject
+
+    body = 'Please find the attachment.'
+    msg.attach(MIMEText(body))
+
+    attachment = open(filename, 'rb')
+    part = MIMEBase('application', 'octet-stream')
+    part.set_payload(attachment.read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', 'attachment; filename= %s' % filename)
+    msg.attach(part)
+
+    server = smtplib.SMTP('(link unavailable)', 587)
+    server.starttls()
+    server.login(sender, 'your_password')
+    server.sendmail(sender, recipient, msg.as_string())
+    server.quit()
+
+filename = 'example.txt'
+content = 'Hello, this is a test file.'
+subject = 'Test Email with Attachment'
+sender = 'your_email@gmail.com'
+recipient = 'recipient_email@example.com'
+
+#Make sure to replace `'your_email@gmail.com'`, `'your_password'`, and `'recipient_email@example.com'` with your actual Gmail address, password, and recipient's email address
+
+create_file(filename, content)
+send_email(subject, sender, recipient, filename)
